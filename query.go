@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"strconv"
 )
 
 // Params represents a list of parameter values to be bound to a SQL statement.
@@ -99,7 +100,11 @@ func (q *Query) logSQL() string {
 		if str, ok := v.(string); ok {
 			sv = "'" + strings.Replace(str, "'", "''", -1) + "'"
 		} else if bs, ok := v.([]byte); ok {
-			sv = "'" + strings.Replace(string(bs), "'", "''", -1) + "'"
+			if len(bs) > 128 {
+				sv = "'" + "<blob[" + strconv.Itoa(len(bs)) + "]>" + "'"
+			} else {
+				sv = "'" + strings.Replace(string(bs), "'", "''", -1) + "'"
+			}
 		} else {
 			sv = fmt.Sprintf("%v", v)
 		}
